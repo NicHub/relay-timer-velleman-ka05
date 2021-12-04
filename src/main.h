@@ -5,27 +5,64 @@
 /**
  *
  */
-void configure_gpio()
+void configure_interrupts()
 {
 #if defined(__AVR_ATmega328P__)
-    // The relays are on PORTB 0 to 5
-    // (Arduino pins 8 to 13).
-    // So set these pins to OUPUT.
-    DDRB |= (1u << 0) | (1u << 1) | (1u << 2) | (1u << 3) | (1u << 4) | (1u << 5);
-
-    // The analog inputs are on PORTC 0 to 5
-    // (Arduino pins A0 to A5).
-    // So set these pins to INPUT.
-    DDRC &= ~(1u << 0) & ~(1u << 1) & ~(1u << 2) & ~(1u << 3) & ~(1u << 4) & ~(1u << 5);
-
-    // The digital inputs are on PORTD 2 to 7
-    // (Arduino pins 2 to 7).
-    // So set these pins to INPUT.
-    DDRD &= ~(1u << 2) & ~(1u << 3) & ~(1u << 4) & ~(1u << 5) & ~(1u << 6) & ~(1u << 7);
+    cli();                 // Turn off interrupts.
+    PCICR |= (1 << PCIE2); // Set PCIE2 to enable PCMSK2 scan.
+    PCMSK2 |=              //
+        (1 << PCINT18) |   // Pin D2.
+        (1 << PCINT19) |   // Pin D3.
+        (1 << PCINT20) |   // Pin D4.
+        (1 << PCINT21) |   // Pin D5.
+        (1 << PCINT22) |   // Pin D6.
+        (1 << PCINT23);    // Pin D7.
+    sei();                 // Turn on interrupts.
 #endif
 
 #if defined(__AVR_ATmega2560__)
-    // Set relay pins to output.
+#endif
+}
+
+/**
+ *
+ */
+void configure_gpio()
+{
+#if defined(__AVR_ATmega328P__)
+    // Set relay pins to OUTPUT.
+    // PORTB 0 to 5 (Arduino pins 8 to 13).
+    DDRB |=
+        (1u << 0) |
+        (1u << 1) |
+        (1u << 2) |
+        (1u << 3) |
+        (1u << 4) |
+        (1u << 5);
+
+    // Set analog input pins to INPUT.
+    // PORTC 0 to 5 (Arduino pins A0 to A5).
+    DDRC &=
+        ~(1u << 0) &
+        ~(1u << 1) &
+        ~(1u << 2) &
+        ~(1u << 3) &
+        ~(1u << 4) &
+        ~(1u << 5);
+
+    // Set digital input pins to INPUT.
+    // PORTD 2 to 7 (Arduino pins 2 to 7).
+    DDRD &=
+        ~(1u << 2) &
+        ~(1u << 3) &
+        ~(1u << 4) &
+        ~(1u << 5) &
+        ~(1u << 6) &
+        ~(1u << 7);
+#endif
+
+#if defined(__AVR_ATmega2560__)
+    // Set relay pins to OUTPUT.
     bitWrite(DDRB, DDB7, 1); // Pin 13
     bitWrite(DDRB, DDB6, 1); // Pin 12
     bitWrite(DDRB, DDB5, 1); // Pin 11
@@ -33,7 +70,7 @@ void configure_gpio()
     bitWrite(DDRH, DDH6, 1); // Pin  9
     bitWrite(DDRH, DDH5, 1); // Pin  8
 
-    // Set analog input pins to input
+    // Set analog input pins to INPUT.
     bitWrite(DDRF, DDF5, 0); // Pin A5
     bitWrite(DDRF, DDF4, 0); // Pin A4
     bitWrite(DDRF, DDF3, 0); // Pin A3
@@ -41,7 +78,7 @@ void configure_gpio()
     bitWrite(DDRF, DDF1, 0); // Pin A1
     bitWrite(DDRF, DDF0, 0); // Pin A0
 
-    // Set digital input pins to input
+    // Set digital input pins to INPUT.
     bitWrite(DDRE, DDE4, 0); // Pin 7
     bitWrite(DDRE, DDE5, 0); // Pin 6
     bitWrite(DDRG, DDG5, 0); // Pin 5
@@ -105,7 +142,7 @@ void configure_serial()
 /**
  *
  */
-void relayPrintValuesToSerial(uint8_t *relayValues)
+void print8bitValueToSerial(uint8_t *relayValues)
 {
     for (int8_t cnt = 0; cnt < RELAY_COUNT; cnt++)
     {
@@ -125,7 +162,7 @@ void relayWrite(uint8_t *relayValues)
     // But in this program, they are numbered
     // from 0 to 5.
 
-    relayPrintValuesToSerial(relayValues);
+    print8bitValueToSerial(relayValues);
 
 #if defined(__AVR_ATmega328P__)
     static uint16_t newPortB = 0;
@@ -142,6 +179,24 @@ void relayWrite(uint8_t *relayValues)
     bitWrite(PORTB, PORTB4, bitRead(*relayValues, 2)); // Pin 10
     bitWrite(PORTH, PORTH6, bitRead(*relayValues, 1)); // Pin  9
     bitWrite(PORTH, PORTH5, bitRead(*relayValues, 0)); // Pin  8
+#endif
+}
+
+/**
+ *
+ */
+void relayRead(uint8_t port)
+{
+    if (!port >= 0)
+        return;
+    if (!port <= 6)
+        return;
+#if defined(__AVR_ATmega328P__)
+
+#endif
+
+#if defined(__AVR_ATmega2560__)
+
 #endif
 }
 
