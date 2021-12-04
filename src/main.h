@@ -1,5 +1,7 @@
 #pragma once
 
+#define RELAY_COUNT 6
+
 /**
  *
  */
@@ -103,7 +105,7 @@ void configure_serial()
 /**
  *
  */
-void relayWrite(uint8_t relayId, bool value)
+void relayWrite(bool relayValues[])
 {
     // In Velleman documentation, the relays
     // are numbered from 1 to 6.
@@ -111,7 +113,15 @@ void relayWrite(uint8_t relayId, bool value)
     // from 0 to 5.
 
 #if defined(__AVR_ATmega328P__)
-    bitWrite(PORTB, relayId, value); // Pins 8 to 13
+    static uint16_t newPortB = 0;
+    for (int8_t cnt = 0; cnt < RELAY_COUNT; cnt++)
+    {
+        bitWrite(newPortB, cnt, relayValues[cnt]);
+        Serial.print(relayValues[cnt]);
+        Serial.print(" ");
+    }
+    PORTB = newPortB;
+    Serial.println("");
 #endif
 
 #if defined(__AVR_ATmega2560__)
@@ -135,154 +145,89 @@ void relayWrite(uint8_t relayId, bool value)
  */
 void play_relays()
 {
-    relayWrite(0, HIGH);
-    delay(50);
-    relayWrite(1, HIGH);
-    delay(50);
-    relayWrite(2, HIGH);
-    delay(50);
-    relayWrite(3, HIGH);
-    delay(50);
-    relayWrite(4, HIGH);
-    delay(50);
-    relayWrite(5, HIGH);
-    delay(50);
-    relayWrite(0, LOW);
-    delay(50);
-    relayWrite(1, LOW);
-    delay(50);
-    relayWrite(2, LOW);
-    delay(50);
-    relayWrite(3, LOW);
-    delay(50);
-    relayWrite(4, LOW);
-    delay(50);
-    relayWrite(5, LOW);
-    delay(200);
-    relayWrite(5, HIGH);
-    delay(50);
-    relayWrite(4, HIGH);
-    delay(50);
-    relayWrite(3, HIGH);
-    delay(50);
-    relayWrite(2, HIGH);
-    delay(50);
-    relayWrite(1, HIGH);
-    delay(50);
-    relayWrite(0, HIGH);
-    delay(50);
-    relayWrite(5, LOW);
-    delay(50);
-    relayWrite(4, LOW);
-    delay(50);
-    relayWrite(3, LOW);
-    delay(50);
-    relayWrite(2, LOW);
-    delay(50);
-    relayWrite(1, LOW);
-    delay(50);
-    relayWrite(0, LOW);
-    delay(200);
-    relayWrite(5, HIGH);
-    relayWrite(0, HIGH);
-    delay(50);
-    relayWrite(4, HIGH);
-    relayWrite(1, HIGH);
-    delay(50);
-    relayWrite(3, HIGH);
-    relayWrite(2, HIGH);
-    delay(200);
-    relayWrite(3, LOW);
-    relayWrite(2, LOW);
-    delay(50);
-    relayWrite(4, LOW);
-    relayWrite(1, LOW);
-    delay(50);
-    relayWrite(5, LOW);
-    relayWrite(0, LOW);
-    delay(200);
-    relayWrite(5, HIGH);
-    relayWrite(4, HIGH);
-    relayWrite(3, HIGH);
-    relayWrite(2, HIGH);
-    relayWrite(1, HIGH);
-    relayWrite(0, HIGH);
-    delay(200);
-    relayWrite(5, LOW);
-    relayWrite(4, LOW);
-    relayWrite(3, LOW);
-    relayWrite(2, LOW);
-    relayWrite(1, LOW);
-    relayWrite(0, LOW);
-    delay(200);
-    relayWrite(5, HIGH);
-    relayWrite(4, HIGH);
-    relayWrite(3, HIGH);
-    relayWrite(2, HIGH);
-    relayWrite(1, HIGH);
-    relayWrite(0, HIGH);
-    delay(50);
-    relayWrite(5, LOW);
-    relayWrite(4, LOW);
-    relayWrite(3, LOW);
-    relayWrite(2, LOW);
-    relayWrite(1, LOW);
-    relayWrite(0, LOW);
-    delay(50);
-    relayWrite(5, HIGH);
-    relayWrite(4, HIGH);
-    relayWrite(3, HIGH);
-    relayWrite(2, HIGH);
-    relayWrite(1, HIGH);
-    relayWrite(0, HIGH);
-    delay(50);
-    relayWrite(5, LOW);
-    relayWrite(4, LOW);
-    relayWrite(3, LOW);
-    relayWrite(2, LOW);
-    relayWrite(1, LOW);
-    relayWrite(0, LOW);
-    delay(50);
-    relayWrite(5, HIGH);
-    relayWrite(4, HIGH);
-    relayWrite(3, HIGH);
-    relayWrite(2, HIGH);
-    relayWrite(1, HIGH);
-    relayWrite(0, HIGH);
-    delay(50);
-    relayWrite(5, LOW);
-    relayWrite(4, LOW);
-    relayWrite(3, LOW);
-    relayWrite(2, LOW);
-    relayWrite(1, LOW);
-    relayWrite(0, LOW);
-    delay(50);
-    relayWrite(5, HIGH);
-    relayWrite(4, HIGH);
-    relayWrite(3, HIGH);
-    relayWrite(2, HIGH);
-    relayWrite(1, HIGH);
-    relayWrite(0, HIGH);
-    delay(50);
-    relayWrite(5, LOW);
-    relayWrite(4, LOW);
-    relayWrite(3, LOW);
-    relayWrite(2, LOW);
-    relayWrite(1, LOW);
-    relayWrite(0, LOW);
-    delay(50);
-    relayWrite(5, HIGH);
-    relayWrite(4, HIGH);
-    relayWrite(3, HIGH);
-    relayWrite(2, HIGH);
-    relayWrite(1, HIGH);
-    relayWrite(0, HIGH);
-    delay(50);
-    relayWrite(5, LOW);
-    relayWrite(4, LOW);
-    relayWrite(3, LOW);
-    relayWrite(2, LOW);
-    relayWrite(1, LOW);
-    relayWrite(0, LOW);
-    delay(200);
+#define WAIT_SHORT 50
+#define WAIT_LONG WAIT_SHORT * 4
+
+    static int8_t cnt1 = 0;
+    static int8_t cnt2 = 0;
+    static int8_t cnt3 = 0;
+    static bool relayValues[RELAY_COUNT] = {LOW, LOW, LOW, LOW, LOW, LOW};
+    relayValues[0] = LOW;
+    relayValues[1] = LOW;
+    relayValues[2] = LOW;
+    relayValues[3] = LOW;
+    relayValues[4] = LOW;
+    relayValues[5] = LOW;
+    relayWrite(relayValues);
+    delay(WAIT_SHORT);
+
+    for (cnt2 = 0; cnt2 < 2; ++cnt2)
+    {
+        for (cnt1 = 0; cnt1 < RELAY_COUNT; ++cnt1)
+        {
+            relayValues[cnt1] = cnt2;
+            relayWrite(relayValues);
+            delay(WAIT_SHORT);
+        }
+    }
+    for (cnt2 = 0; cnt2 < 2; ++cnt2)
+    {
+        for (cnt1 = (RELAY_COUNT - 1); cnt1 >= 0; --cnt1)
+        {
+            relayValues[cnt1] = cnt2;
+            relayWrite(relayValues);
+            delay(WAIT_SHORT);
+        }
+    }
+
+    relayValues[0] = HIGH;
+    relayValues[5] = HIGH;
+    relayWrite(relayValues);
+    delay(WAIT_SHORT);
+
+    relayValues[1] = HIGH;
+    relayValues[4] = HIGH;
+    relayWrite(relayValues);
+    delay(WAIT_SHORT);
+
+    relayValues[2] = HIGH;
+    relayValues[3] = HIGH;
+    relayWrite(relayValues);
+    delay(WAIT_LONG);
+
+    relayValues[2] = LOW;
+    relayValues[3] = LOW;
+    relayWrite(relayValues);
+    delay(WAIT_SHORT);
+
+    relayValues[1] = LOW;
+    relayValues[4] = LOW;
+    relayWrite(relayValues);
+    delay(WAIT_SHORT);
+
+    relayValues[5] = LOW;
+    relayValues[0] = LOW;
+    relayWrite(relayValues);
+    delay(WAIT_LONG);
+
+    for (cnt1 = 0; cnt1 < RELAY_COUNT; ++cnt1)
+        relayValues[cnt1] = HIGH;
+    relayWrite(relayValues);
+    delay(WAIT_LONG);
+
+    for (cnt1 = 0; cnt1 < RELAY_COUNT; ++cnt1)
+        relayValues[cnt1] = LOW;
+    relayWrite(relayValues);
+    delay(WAIT_LONG);
+
+    for (cnt3 = 0; cnt3 < 7; ++cnt3)
+    {
+        for (cnt2 = 0; cnt2 < 2; ++cnt2)
+        {
+            for (cnt1 = 0; cnt1 < RELAY_COUNT; ++cnt1)
+                relayValues[cnt1] = cnt2;
+            relayWrite(relayValues);
+            delay(WAIT_SHORT);
+        }
+    }
 }
