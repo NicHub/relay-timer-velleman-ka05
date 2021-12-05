@@ -483,3 +483,32 @@ void play_relays()
     relayWrite(&relayValue);
     delay(200);
 }
+
+/**
+ *
+ */
+void blink(uint8_t relayId, uint8_t count)
+{
+    static *uint8_t port_val;
+#if defined(__AVR_ATmega328P__)
+    *port_val = PORTB;
+    bit_val = relayId;
+#endif
+
+    if (relayId == 0)
+    {
+    }
+    else if (relayId == 6)
+    {
+    }
+
+    uint8_t initial_val = bitRead(*port_val, bit_val);
+    for (uint8_t cnt = 0; cnt < count; ++cnt)
+    {
+        bitWrite(*port_val, bit_val, 0);
+        _delay_ms(45);
+        bitWrite(*port_val, bit_val, 1);
+        _delay_ms(5);
+    }
+    bitWrite(*port_val, bit_val, initial_val);
+}

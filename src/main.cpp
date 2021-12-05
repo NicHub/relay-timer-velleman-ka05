@@ -10,7 +10,6 @@ volatile uint8_t PIND_COPY = PIND;
 ISR(PCINT2_vect)
 {
     DIGITAL_CHANGE = true;
-    PIND_COPY = PIND;
 }
 
 /**
@@ -21,7 +20,7 @@ void setup()
     configure_serial();
     configure_gpio();
     configure_interrupts();
-    play_relays();
+    blink(5, 10);
 }
 
 /**
@@ -29,40 +28,46 @@ void setup()
  */
 void loop()
 {
-    static unsigned long time = 0;
-    static unsigned long last_time = 0;
-    time = millis();
+    static uint8_t relayValue = 0;
+    static unsigned long now = 0;
+    static unsigned long last_now = 0;
+    now = millis();
 
     if (DIGITAL_CHANGE)
     {
         DIGITAL_CHANGE = false;
-        if (time - last_time < 100)
+        if (now - last_now < 20)
             return;
-        last_time = time;
+        last_now = now;
+        PIND_COPY = PIND;
         print8bitValueToSerial(&PIND_COPY);
+        relayValue = 0;
+        blink(5, 2);
         if (!bitRead(PIND_COPY, 2))
         {
-            Serial.println("PIN 2 is ON");
+            bitWrite(relayValue, 0, HIGH);
+            play_relays();
         }
         if (!bitRead(PIND_COPY, 3))
         {
-            Serial.println("PIN 3 is ON");
+            bitWrite(relayValue, 1, HIGH);
         }
         if (!bitRead(PIND_COPY, 4))
         {
-            Serial.println("PIN 4 is ON");
+            bitWrite(relayValue, 2, HIGH);
         }
         if (!bitRead(PIND_COPY, 5))
         {
-            Serial.println("PIN 5 is ON");
+            bitWrite(relayValue, 3, HIGH);
         }
         if (!bitRead(PIND_COPY, 6))
         {
-            Serial.println("PIN 6 is ON");
+            bitWrite(relayValue, 4, HIGH);
         }
         if (!bitRead(PIND_COPY, 7))
         {
-            Serial.println("PIN 7 is ON");
+            bitWrite(relayValue, 5, HIGH);
         }
+        relayWrite(&relayValue);
     }
 }
